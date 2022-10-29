@@ -16,8 +16,8 @@ public class CameraController : MonoBehaviour
     {
         vCam = GetComponent<CinemachineVirtualCamera>();
         noise = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
-        noise.m_AmplitudeGain = 0;
-        noise.m_FrequencyGain = 0;
+        //noise.m_AmplitudeGain = 0;
+        //noise.m_FrequencyGain = 0;
     }
 
     // Función para sacudir la camara

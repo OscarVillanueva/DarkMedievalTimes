@@ -16,6 +16,9 @@ public class PlayerController : MonoBehaviour
     // Saber cuando tiempo de inmunidad tendra el jugador
     [SerializeField] int invulnerabilityTime = 3;
 
+    // Colocar la mira
+    [SerializeField] private Transform aim;
+
     // Para mover al jugador
     private Rigidbody2D rigidBody;
 
@@ -28,6 +31,12 @@ public class PlayerController : MonoBehaviour
     // Mover la camara
     private CameraController cameraController;
 
+    // Sacar la posición del mouse en pantalla
+    private Camera mainCamera;
+
+    // Saber la dirección del player
+    private Vector2 facingDirection;
+
     private void Awake()
     {
         // Sacamos el rigid body y poder mover al player
@@ -39,11 +48,15 @@ public class PlayerController : MonoBehaviour
         // Buscamos la camara
         cameraController = FindObjectOfType<CameraController>();
 
+        // Sacar la posición del mouse
+        mainCamera = FindObjectOfType<Camera>();
+
     }
 
     private void FixedUpdate()
     {
         MovePlayer();
+        MoveAim();
     }
 
     /*
@@ -60,6 +73,17 @@ public class PlayerController : MonoBehaviour
 
         // Movemos al personaje
         rigidBody.velocity = new Vector2(moveDirection.x * speed, moveDirection.y * speed);
+    }
+
+    private void MoveAim()
+    {
+        if (!mainCamera) return;
+
+        // sacamos la posición que tiene el mouse en la pantalla de juego
+        facingDirection = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+
+        // Colocamos el arma
+        aim.position = transform.position + (Vector3)facingDirection.normalized;
     }
 
     /*

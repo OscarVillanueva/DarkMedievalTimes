@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
     // Saber la velocidad del player
     [SerializeField] private float speed = 6.0f;
 
+    [SerializeField] private BoxCollider2D weaponCollider;
+
     // Cantidad de vida
     [SerializeField] private float health = 3.0f;
 
@@ -15,6 +17,9 @@ public class PlayerController : MonoBehaviour
 
     // Saber cuando tiempo de inmunidad tendra el jugador
     [SerializeField] int invulnerabilityTime = 3;
+
+    // Saber cuando poder de ataque tiene
+    [SerializeField] int powerAttack = 1;
 
     // Colocar la mira
     [SerializeField] private Transform aim;
@@ -37,6 +42,19 @@ public class PlayerController : MonoBehaviour
     // Saber la dirección del player
     private Vector2 facingDirection;
 
+    // Sacar el animator
+    private Animator animator;
+
+    // Saber si el player esta attacando;
+    private bool isAttacking;
+
+    private bool isReadyToAttack = true;
+
+    // Saber cuanto es máximo de vida
+    private const float MAX_HEALTH = 3.0f;
+
+
+    // MARK: - LIFECLYCLE
     private void Awake()
     {
         // Sacamos el rigid body y poder mover al player
@@ -51,14 +69,39 @@ public class PlayerController : MonoBehaviour
         // Sacar la posición del mouse
         mainCamera = FindObjectOfType<Camera>();
 
+        // Sacamos el animator
+        animator = GetComponent<Animator>();
+
     }
 
+    private void Update()
+    {
+
+        if (Input.GetButtonDown("Fire1") && isReadyToAttack)
+        {
+            Attack();
+        }
+
+    }
     private void FixedUpdate()
     {
         MovePlayer();
-        MoveAim();
+        //MoveAim();
     }
 
+    // MARK: - METHODS
+    private void Attack()
+    {
+
+        isReadyToAttack = false;
+        animator.SetBool("isAttacking", true);
+        weaponCollider.enabled = true;
+
+        Invoke(nameof(ReloadSword), 0.5f);
+
+    }
+
+    
     /*
         Función para poder mover al jugador
      */
@@ -67,6 +110,10 @@ public class PlayerController : MonoBehaviour
         // Sacamos si se esta moviendo vertical u horizontal 
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
+
+        animator.SetFloat("Vertical", vertical);
+        animator.SetFloat("Horizontal", horizontal);
+
 
         // Creamos un vector de dirección normalizado para que siempre tenga el mismo tamaño
         Vector2 moveDirection = new Vector2(horizontal, vertical).normalized;
@@ -83,7 +130,7 @@ public class PlayerController : MonoBehaviour
         facingDirection = mainCamera.ScreenToWorldPoint(Input.mousePosition) - transform.position;
 
         // Colocamos el arma
-        aim.position = transform.position + (Vector3)facingDirection.normalized;
+        aim.position = transform.position + (Vector3)facingDirection.normalized * 1.5f;
     }
 
     /*
@@ -92,7 +139,7 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage()
     {
 
-        if (isInvulnerable) return;
+        if (isInvulnerable || isAttacking) return;
 
         health = health - 1;
 
@@ -109,6 +156,29 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    public void RestoreHealth(float moreHealth)
+    {
+        health = health + moreHealth;
+        if (health > MAX_HEALTH) health = 3;
+    }
+
+    public void ReloadSword()
+    {
+        isReadyToAttack = true;
+        weaponCollider.enabled = false;
+        animator.SetBool("isAttacking", false);
+    }
+
+    // MARK: - EVENTS
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Enemy"))
+        {
+            collision.GetComponent<EnemyController>().TakeDamage(powerAttack);
+        }
+    }
+
+    // MARK: - ROUTINES
     /*
      * Hacer que el jugador no pueda recibir daño dentro del tiempo establecido
      */

@@ -48,4 +48,15 @@ public class GameManager : MonoBehaviour
     {
         if (!sharedInstance) sharedInstance = this;
     }
+
+    private void Update()
+    {
+
+        if (Input.GetKeyDown(KeyCode.Escape) && CurrentState != GameStates.gameOver)
+        {
+            if (CurrentState == GameStates.pause) CurrentState = GameStates.inGame;
+            else CurrentState = GameStates.pause;
+        }
+
+    }
 }

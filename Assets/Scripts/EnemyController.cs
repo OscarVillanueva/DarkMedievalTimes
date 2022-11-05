@@ -66,6 +66,7 @@ public class EnemyController : MonoBehaviour
         if (health <= 0)
         {
             GameManager.sharedInstance.Score = GameManager.sharedInstance.Score + points;
+            EnemyManager.sharedInstance.AnotherEnemyDead();
             Destroy(gameObject, 0.1f);
         }
 

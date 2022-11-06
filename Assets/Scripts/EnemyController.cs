@@ -12,13 +12,20 @@ public class EnemyController : MonoBehaviour
     // tener una referencia del player para hacerle daño
     private PlayerController player;
 
-    // PAra poder mover al enemigo
+    // Para poder mover al enemigo
     private Rigidbody2D rigidBody;
+
+    // Para poder mover al enemigo;
+    private Animator animator;
+
+    // saber si esta muerto
+    private bool isDead;
 
     private void Awake()
     {
         // sacamos el rigid body
         rigidBody = GetComponent<Rigidbody2D>();
+
     }
 
     void Start()
@@ -26,6 +33,8 @@ public class EnemyController : MonoBehaviour
         // inicializamos al player
         PlayerController controller = FindObjectOfType<PlayerController>();
         if (controller) player = controller;
+
+        animator = GetComponent<Animator>();
     }
 
     private void FixedUpdate()
@@ -43,6 +52,13 @@ public class EnemyController : MonoBehaviour
         }
 
         Vector2 direction = player.transform.position - transform.position;
+
+        animator.SetFloat("Horizontal", direction.x);
+        animator.SetFloat("Vertical", direction.y);
+
+        float distance = Vector3.Distance(transform.position, player.transform.position);
+        // TODO: Si la distancia es menor o igual a cierta distancia atacar.
+
         rigidBody.velocity = new Vector2(direction.normalized.x * speed, direction.normalized.y * speed);
     }
 
@@ -50,7 +66,7 @@ public class EnemyController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // aplicamos daño al jugador si chocamos con el
-        if (collision.collider.CompareTag("Player"))
+        if (collision.collider.CompareTag("Player") && !isDead)
         {
             player.TakeDamage();
         }
@@ -67,7 +83,12 @@ public class EnemyController : MonoBehaviour
         {
             GameManager.sharedInstance.Score = GameManager.sharedInstance.Score + points;
             EnemyManager.sharedInstance.AnotherEnemyDead();
-            Destroy(gameObject, 0.1f);
+
+            animator.SetBool("isDead", true);
+
+            isDead = true;
+
+            Destroy(gameObject, 2.0f);
         }
 
     }

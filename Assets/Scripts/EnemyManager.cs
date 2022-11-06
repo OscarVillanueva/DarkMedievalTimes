@@ -35,6 +35,11 @@ public class EnemyManager : MonoBehaviour
     public void AnotherEnemyDead()
     {
         enemiesBeated = enemiesBeated + 1;
+
+        if (enemiesBeated == totalEnemies)
+        {
+            GameManager.sharedInstance.LevelCompleted();
+        }
     }
 
     IEnumerator SpawnNewEnemy()

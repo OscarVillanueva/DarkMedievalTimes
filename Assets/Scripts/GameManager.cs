@@ -8,6 +8,8 @@ public class GameManager : MonoBehaviour
 
     private GameStates currentState;
     private int score;
+    public int currentLevel = 1;
+    public bool isCurrentLevelClear;
 
     // Settear y obtener el valor de current state
     public GameStates CurrentState
@@ -47,6 +49,14 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         if (!sharedInstance) sharedInstance = this;
+    }
+
+    public void LevelCompleted()
+    {
+        currentLevel = currentLevel + 1;
+        isCurrentLevelClear = true;
+
+        // TODO: Abrir las puertas 
     }
 
     private void Update()

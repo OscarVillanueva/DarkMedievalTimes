@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     // Saber la velocidad del player
     [SerializeField] private float speed = 6.0f;
 
+    // Rango de golpeo del jugador
     [SerializeField] private BoxCollider2D weaponCollider;
 
     // Cantidad de vida
@@ -48,12 +49,15 @@ public class PlayerController : MonoBehaviour
     // Saber si el player esta attacando;
     private bool isAttacking;
 
+    // Saber si ya puede volver a atacar
     private bool isReadyToAttack = true;
 
     // Saber cuanto es máximo de vida
     private const float MAX_HEALTH = 3.0f;
 
-
+    // Saber si ya esta muerto
+    private bool isDead = false;
+     
     // MARK: - LIFECLYCLE
     private void Awake()
     {
@@ -77,7 +81,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
 
-        if (Input.GetButtonDown("Fire1") && isReadyToAttack)
+        if (Input.GetButtonDown("Fire1") && isReadyToAttack && !isDead)
         {
             Attack();
         }
@@ -85,7 +89,7 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        MovePlayer();
+        if (!isDead) MovePlayer();
         //MoveAim();
     }
 
@@ -145,7 +149,9 @@ public class PlayerController : MonoBehaviour
 
         if (health <= 0)
         {
-            GameManager.sharedInstance.CurrentState = GameStates.gameOver;
+            animator.SetBool("isDead", true);
+            isDead = true;
+            Invoke(nameof(FinishGame), 1.5f);
         }
         else
         {
@@ -154,6 +160,11 @@ public class PlayerController : MonoBehaviour
             cameraController.Shake(0.3f);
         }
 
+    }
+
+    public void FinishGame()
+    {
+        GameManager.sharedInstance.CurrentState = GameStates.gameOver;
     }
 
     public void RestoreHealth(float moreHealth)

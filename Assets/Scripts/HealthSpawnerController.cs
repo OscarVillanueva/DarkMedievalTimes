@@ -15,7 +15,8 @@ public class HealthSpawnerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        healthPackDelay = Random.Range(3, 5);
+        healthPackDelay = Random.Range(4, 8);
+        totalOfPacks = totalOfPacks * PlayerPrefs.GetInt("diff", 1);
         StartSpawing();
     }
 

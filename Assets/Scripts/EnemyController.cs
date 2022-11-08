@@ -19,17 +19,27 @@ public class EnemyController : MonoBehaviour
     private Animator animator;
 
     // saber si esta muerto
-    private bool isDead;
+    public bool isDead;
+
+    // Mover al enemigo en al punto inicial
+    public Vector3 initialSpot = Vector3.zero;
+
+    // saber si ya llego al punto inicial
+    private bool reachInitialSpot;
+
+    // Saber si el enemigo esta listo para atacar
+    private bool isReadyToAttack;
 
     private void Awake()
     {
         // sacamos el rigid body
         rigidBody = GetComponent<Rigidbody2D>();
-
     }
 
     void Start()
     {
+        isReadyToAttack = true;
+
         // inicializamos al player
         PlayerController controller = FindObjectOfType<PlayerController>();
         if (controller) player = controller;
@@ -39,10 +49,31 @@ public class EnemyController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        MoveEnemy();
+        if (isDead)
+        {
+            rigidBody.velocity = Vector2.zero;
+            return;
+        }
+
+        if (reachInitialSpot)
+            FollowPlayer();
+        else GoToInitialSpot();
     }
 
-    private void MoveEnemy()
+    private void GoToInitialSpot()
+    {
+        float distance = Vector3.Distance(transform.position, initialSpot);
+
+        if (initialSpot == Vector3.zero || distance <= 1)
+        {
+            reachInitialSpot = true;
+            return;
+        }
+
+        MoveEnemy(initialSpot);
+    }
+
+    private void FollowPlayer()
     {
         // si no hay player lo dejamos de mover
         if (!player)
@@ -51,13 +82,23 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        Vector2 direction = player.transform.position - transform.position;
+        float distance = Vector3.Distance(transform.position, player.transform.position);
+
+        if (distance <= 3 && isReadyToAttack)
+        {
+            animator.SetBool("isAttacking", true);
+            StartCoroutine(ReloadWeapon());
+        }
+
+        MoveEnemy(player.transform.position);
+    }
+
+    private void MoveEnemy(Vector3 goToPosition)
+    {
+        Vector2 direction = goToPosition - transform.position;
 
         animator.SetFloat("Horizontal", direction.x);
         animator.SetFloat("Vertical", direction.y);
-
-        float distance = Vector3.Distance(transform.position, player.transform.position);
-        // TODO: Si la distancia es menor o igual a cierta distancia atacar.
 
         rigidBody.velocity = new Vector2(direction.normalized.x * speed, direction.normalized.y * speed);
     }
@@ -79,17 +120,37 @@ public class EnemyController : MonoBehaviour
 
         health = health - damage;
 
+        if (health == 1)
+        {
+            gameObject.GetComponent<SpriteRenderer>().color = Color.red;
+        }
+
         if (health <= 0)
         {
+            gameObject.GetComponent<CapsuleCollider2D>().enabled = false;
+
             GameManager.sharedInstance.Score = GameManager.sharedInstance.Score + points;
             EnemyManager.sharedInstance.AnotherEnemyDead();
 
             animator.SetBool("isDead", true);
+
 
             isDead = true;
 
             Destroy(gameObject, 2.0f);
         }
 
+    }
+
+    IEnumerator ReloadWeapon()
+    {
+        yield return new WaitForSeconds(1.0f);
+
+        isReadyToAttack = false;
+        animator.SetBool("isAttacking", false);
+
+        yield return new WaitForSeconds(2.5f);
+
+        isReadyToAttack = true;
     }
 }

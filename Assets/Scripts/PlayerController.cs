@@ -105,7 +105,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    
+
     /*
         Función para poder mover al jugador
      */
@@ -147,7 +147,7 @@ public class PlayerController : MonoBehaviour
 
         health = health - 1;
 
-        if (health <= 0)
+        if (health < 0)
         {
             animator.SetBool("isDead", true);
             isDead = true;
@@ -158,6 +158,7 @@ public class PlayerController : MonoBehaviour
             isInvulnerable = true;
             StartCoroutine(MakeVulnerableAgain());
             cameraController.Shake(0.3f);
+            UIStatsManager.sharedInstance.UpdateLifesLabel((int)health);
         }
 
     }
@@ -171,6 +172,8 @@ public class PlayerController : MonoBehaviour
     {
         health = health + moreHealth;
         if (health > MAX_HEALTH) health = 3;
+
+        UIStatsManager.sharedInstance.UpdateLifesLabel((int)health);
     }
 
     public void ReloadSword()
@@ -185,7 +188,8 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("Enemy"))
         {
-            collision.GetComponent<EnemyController>().TakeDamage(powerAttack);
+            EnemyController controller = collision.GetComponent<EnemyController>();
+            if (!controller.isDead) controller.TakeDamage(powerAttack);
         }
     }
 

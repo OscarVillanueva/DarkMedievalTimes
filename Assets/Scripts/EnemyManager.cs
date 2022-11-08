@@ -6,13 +6,13 @@ public class EnemyManager : MonoBehaviour
 {
 
     [SerializeField] private int totalEnemies = 35;
-    [SerializeField] private Transform[] enemySpawners;
     [SerializeField] GameObject enemyPreFab;
 
     [Range(0.1f, 10f)][SerializeField] private float spawnRate = 1;
 
+    private Transform[] enemySpawners;
     private int enemiesSpawned = 0;
-    public int enemiesBeated = 0;
+    private int enemiesBeated = 0;
 
     public static EnemyManager sharedInstance;
 
@@ -21,14 +21,12 @@ public class EnemyManager : MonoBehaviour
         if (!sharedInstance) sharedInstance = this;
     }
 
-    private void Start()
-    {
-        StartLevel();
-    }
-
     // Start is called before the first frame update
-    public void StartLevel()
+    public void StartLevel(Transform[] spawners)
     {
+
+        totalEnemies = totalEnemies * PlayerPrefs.GetInt("diff", 1);
+        enemySpawners = spawners;
         StartCoroutine(SpawnNewEnemy());
     }
 
@@ -50,8 +48,12 @@ public class EnemyManager : MonoBehaviour
 
             int random = Random.Range(0, enemySpawners.Length);
 
-            // 10% de probabilidad que salga el enemigo fuerte
-            Instantiate(enemyPreFab, enemySpawners[random].position, Quaternion.identity);
+            Transform enemySpawn = enemySpawners[random];
+            Transform initialSpot = enemySpawn.GetChild(0);
+
+            enemyPreFab.GetComponent<EnemyController>().initialSpot = initialSpot.position;
+
+            Instantiate(enemyPreFab, enemySpawn.position, Quaternion.identity);
 
             enemiesSpawned = enemiesSpawned + 1;
         }

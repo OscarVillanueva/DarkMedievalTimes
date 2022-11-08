@@ -6,10 +6,13 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager sharedInstance;
 
+    [SerializeField] private int totalOfLevels;
+
+    private BoxCollider2D currentExit;
     private GameStates currentState;
     private int score;
-    public int currentLevel = 1;
-    public bool isCurrentLevelClear;
+    private int currentLevel = 1;
+    private bool isCurrentLevelClear;
 
     // Settear y obtener el valor de current state
     public GameStates CurrentState
@@ -20,15 +23,19 @@ public class GameManager : MonoBehaviour
             switch (value)
             {
                 case GameStates.inGame:
+                    UIStatsManager.sharedInstance.ShowPauseCanvas(false);
                     Time.timeScale = 1.0f;
                     break;
 
                 case GameStates.gameOver:
                     Time.timeScale = 0.0f;
+                    UIStatsManager.sharedInstance
+                        .ShowGameOverCanvas(true, isCurrentLevelClear ? "¡Ganaste!" : "¡Perdiste!");
                     break;
 
                 case GameStates.pause:
                     Time.timeScale = 0.0f;
+                    UIStatsManager.sharedInstance.ShowPauseCanvas(true);
                     break;
             }
 
@@ -42,6 +49,7 @@ public class GameManager : MonoBehaviour
         set
         {
             score = value;
+            UIStatsManager.sharedInstance.UpdateScoreLabel(score);
         }
     }
 
@@ -51,12 +59,26 @@ public class GameManager : MonoBehaviour
         if (!sharedInstance) sharedInstance = this;
     }
 
+    private void Start()
+    {
+        Time.timeScale = 1.0f;
+    }
+
     public void LevelCompleted()
     {
         currentLevel = currentLevel + 1;
         isCurrentLevelClear = true;
 
-        // TODO: Abrir las puertas 
+        currentExit.enabled = false;
+
+        if (currentLevel > totalOfLevels) Invoke(nameof(WinningGameOver), 2.0f);
+        else UIStatsManager.sharedInstance.LevelComplete();
+
+    }
+
+    public void WinningGameOver()
+    {
+        CurrentState = GameStates.gameOver;
     }
 
     private void Update()
@@ -68,5 +90,12 @@ public class GameManager : MonoBehaviour
             else CurrentState = GameStates.pause;
         }
 
+    }
+
+    public void StartLevel(BoxCollider2D exit, Transform[] spawners)
+    {
+        currentExit = exit;
+        EnemyManager.sharedInstance.StartLevel(spawners);
+        isCurrentLevelClear = false;
     }
 }

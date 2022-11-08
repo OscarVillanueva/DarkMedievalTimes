@@ -78,7 +78,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 3
   m_Sprite: {fileID: -63567346, guid: 336d28f3949cc5349aa680896b54440b, type: 3}
   m_Color: {r: 0.9716981, g: 0.93044674, b: 0.93044674, a: 1}
   m_FlipX: 0
@@ -107,6 +107,7 @@ MonoBehaviour:
   health: 3
   blinkRate: 0.01
   invulnerabilityTime: 3
+  powerAttack: 1
   aim: {fileID: 7136086650126291400}
 --- !u!50 &3169748501297279292
 Rigidbody2D:
@@ -178,7 +179,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.005287148, y: 0.0033794492}
+  m_Offset: {x: -0.007542819, y: -0.01927945}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -189,7 +190,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.45, y: 0.45}
+  m_Size: {x: 0.4951554, y: 0.5471216}
   m_EdgeRadius: 0
 --- !u!1 &7638928493707854149
 GameObject:

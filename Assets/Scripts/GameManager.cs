@@ -66,6 +66,7 @@ public class GameManager : MonoBehaviour
 
     public void LevelCompleted()
     {
+
         currentLevel = currentLevel + 1;
         isCurrentLevelClear = true;
 

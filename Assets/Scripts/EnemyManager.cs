@@ -27,6 +27,8 @@ public class EnemyManager : MonoBehaviour
 
         totalEnemies = totalEnemies * PlayerPrefs.GetInt("diff", 1);
         enemySpawners = spawners;
+        enemiesSpawned = 0;
+        enemiesBeated = 0;
         StartCoroutine(SpawnNewEnemy());
     }
 
